@@ -95,34 +95,37 @@ public class WaterfallCloudGenerators {
                 && !stateDoubleUp.getFluidState().isSource());
         });
 
-        List<BlockPos> generators = GENERATORS.stream().sorted(Comparator.comparingDouble(bp -> bp.distSqr(pos))).collect(Collectors.toList());
+        try {
+            List<BlockPos> generators = GENERATORS.stream().sorted(Comparator.comparingDouble(bp -> bp.distSqr(pos))).collect(Collectors.toList());
 
-        generators.forEach(blockPos -> {
-            double dist = blockPos.distSqr(pos);
+            generators.forEach(blockPos -> {
+                double dist = blockPos.distSqr(pos);
 
-            double offsetX = random.nextDouble() / 5.0 + 0.2;
-            offsetX = random.nextBoolean() ? offsetX : -offsetX;
-            double offsetZ = random.nextDouble() / 5.0 + 0.2;
-            offsetZ = random.nextBoolean() ? offsetZ : -offsetZ;
+                double offsetX = random.nextDouble() / 5.0 + 0.2;
+                offsetX = random.nextBoolean() ? offsetX : -offsetX;
+                double offsetZ = random.nextDouble() / 5.0 + 0.2;
+                offsetZ = random.nextBoolean() ? offsetZ : -offsetZ;
 
-            if (((int)level.getGameTime()) % (soundCounter[0] * 7) == 0 && dist < cascadeRangeSquared) {
-                soundManager.play(new LinearFadeSound(EffectiveFgSounds.AMBIENCE_WATERFALL, SoundSource.AMBIENT, cascadeRange, 1.0F, blockPos.getX(), blockPos.getY(), blockPos.getZ()));
-            }
+                if (((int)level.getGameTime()) % (soundCounter[0] * 7) == 0 && dist < cascadeRangeSquared) {
+                    soundManager.play(new LinearFadeSound(EffectiveFgSounds.AMBIENCE_WATERFALL, SoundSource.AMBIENT, cascadeRange, 1.0F, blockPos.getX(), blockPos.getY(), blockPos.getZ()));
+                }
 
-            if (random.nextFloat() < EffectiveFg.config().cascadeParticleAmountMultiplier.get()) {
-                EffectiveFgParticles.WATERFALL_CLOUD.create(level,
-                    blockPos.getX() + 0.5 + offsetX,
-                    blockPos.getY() + 1.0 + random.nextFloat(),
-                    blockPos.getZ() + 0.5 + offsetZ,
-                    random.nextFloat() / 5.0 * Math.signum(offsetX),
-                    random.nextFloat() / 5.0,
-                    random.nextFloat() / 5.0 * Math.signum(offsetZ)
-                );
-            }
-
-
-            soundCounter[0] += random.nextInt(2) + 1;
-        });
+                if (random.nextFloat() < EffectiveFg.config().cascadeParticleAmountMultiplier.get()) {
+                    EffectiveFgParticles.WATERFALL_CLOUD.create(level,
+                        blockPos.getX() + 0.5 + offsetX,
+                        blockPos.getY() + 1.0 + random.nextFloat(),
+                        blockPos.getZ() + 0.5 + offsetZ,
+                        random.nextFloat() / 5.0 * Math.signum(offsetX),
+                        random.nextFloat() / 5.0,
+                        random.nextFloat() / 5.0 * Math.signum(offsetZ)
+                    );
+                }
+               soundCounter[0] += random.nextInt(2) + 1;
+            });
+        } catch (Exception e) {
+            // async modifications catcher (often crashes here inside of the lambdas)
+            e.printStackTrace();
+        }
 
         resolvingWaterfalls = false;
     }
